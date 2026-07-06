@@ -59,7 +59,7 @@ async function main() {
 
     try {
         console.log('Clearing existing catalog tables...');
-        const { orderItems, orders, favorites, deliveryAssignments } = await import('./schema');
+        const { orderItems, orders, favorites, deliveryAssignments } = await import('./schema.js');
         await db.delete(deliveryAssignments);
         await db.delete(orderItems);
         await db.delete(orders);

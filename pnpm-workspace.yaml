@@ -2,5 +2,4 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
-overrides:
-  jose: ^5.9.6
+
