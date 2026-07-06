@@ -2,24 +2,34 @@ import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import * as fs from 'fs';
 
-const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+function loadServiceAccount(): Record<string, unknown> {
+    const json = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    if (json) {
+        try {
+            return JSON.parse(json);
+        } catch (error) {
+            throw new Error(`Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON: ${error}`);
+        }
+    }
 
-if (!serviceAccountPath) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH is not set in environment variables');
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+    if (serviceAccountPath) {
+        try {
+            return JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
+        } catch (error) {
+            throw new Error(`Failed to read Firebase service account from ${serviceAccountPath}: ${error}`);
+        }
+    }
+
+    throw new Error(
+        'Set FIREBASE_SERVICE_ACCOUNT_JSON (Vercel) or FIREBASE_SERVICE_ACCOUNT_PATH (local dev)'
+    );
 }
 
 let app;
 if (getApps().length === 0) {
-    let serviceAccount;
-    try {
-        const rawData = fs.readFileSync(serviceAccountPath, 'utf8');
-        serviceAccount = JSON.parse(rawData);
-    } catch (error) {
-        throw new Error(`Failed to read or parse Firebase service account from path ${serviceAccountPath}: ${error}`);
-    }
-
     app = initializeApp({
-        credential: cert(serviceAccount)
+        credential: cert(loadServiceAccount() as Parameters<typeof cert>[0]),
     });
 } else {
     app = getApps()[0];

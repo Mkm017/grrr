@@ -1,7 +1,8 @@
 //D:\Grrr\apps\web\src\lib\api.ts
 import { auth } from './firebase';
+import { env } from '../env';
 
-const BASE_URL = 'http://localhost:3002';
+const BASE_URL = env.VITE_API_URL || 'http://localhost:3002';
 
 async function request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
     const url = `${BASE_URL}${path}`;

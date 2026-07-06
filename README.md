@@ -282,3 +282,66 @@ Set your delivery location to **Jaipur** (or near it). Seed branches are in C-Sc
 
 ---
 
+## Deploy to Vercel (frontend + API together)
+
+Grrr is configured to deploy as **one Vercel project**: Vite SPA + Hono API serverless function at `/api`.
+
+### Vercel import settings
+
+| Field | Value |
+|-------|--------|
+| **Framework Preset** | Other |
+| **Root Directory** | `./` (repo root) |
+| **Build Command** | `pnpm run build:vercel` *(auto from `vercel.json`)* |
+| **Output Directory** | `apps/web/dist` *(auto from `vercel.json`)* |
+| **Install Command** | `pnpm install` *(auto from `vercel.json`)* |
+
+You do **not** need to change these manually if `vercel.json` is detected.
+
+### Environment variables (Vercel dashboard)
+
+Add all of these under **Project → Settings → Environment Variables**:
+
+**Frontend (build-time — must start with `VITE_`):**
+
+```
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+VITE_API_URL=/api
+```
+
+**Backend (runtime):**
+
+```
+DATABASE_URL=postgresql://...
+GEMINI_API_KEY=...
+FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+```
+
+For `FIREBASE_SERVICE_ACCOUNT_JSON`, paste the **entire** Firebase Admin SDK JSON on one line (from Firebase Console → Project settings → Service accounts → Generate new private key). Do not use a file path on Vercel.
+
+### After first deploy
+
+1. **Firebase** → Authentication → Settings → **Authorized domains** → add `your-project.vercel.app`
+2. Visit `https://your-project.vercel.app/api/health` — should return `{"status":"healthy",...}`
+3. Visit `https://your-project.vercel.app/api/ping` — should return `{"status":"ok",...}`
+
+### How it works
+
+- `vercel.json` builds the web app and bundles the API into `api/index.js`
+- Browser requests to `/api/*` hit the Hono serverless function
+- All other routes serve the React SPA (`index.html` fallback)
+- Locally, the API still runs on `http://localhost:3002` without the `/api` prefix
+
+### Test Vercel build locally
+
+```bash
+pnpm run build:vercel
+```
+
+---
+
