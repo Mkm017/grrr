@@ -1,7 +1,9 @@
-import { handle } from 'hono/vercel';
 import { createApp } from './app';
 
 const app = createApp('/api');
 
-export default handle(app);
-
+export default {
+    fetch(request: Request) {
+        return app.fetch(request);
+    },
+};

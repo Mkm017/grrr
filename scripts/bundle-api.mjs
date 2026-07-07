@@ -8,8 +8,8 @@ await esbuild.build({
     bundle: true,
     platform: 'node',
     target: 'node20',
-    format: 'cjs',
-    outfile: 'api/index.js',
+    format: 'esm',
+    outfile: 'api/index.mjs',
     external: ['firebase-admin', '@google/genai'],
     logLevel: 'info',
 });
