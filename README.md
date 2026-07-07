@@ -254,7 +254,7 @@ Use **Google** or **Phone OTP** on the login page (requires Firebase setup above
 
 ## Troubleshooting
 
-### API fails to start — "Invalid API environment variables"
+### API fails to start — "Invalid API environment variables."
 
 Check that `apps/api/.env` has all required variables and that `FIREBASE_SERVICE_ACCOUNT_PATH` points to a valid JSON file.
 
