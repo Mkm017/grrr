@@ -1,41 +1,12 @@
-var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-  get: (a, b2) => (typeof require !== "undefined" ? require : a)[b2]
-}) : x)(function(x) {
-  if (typeof require !== "undefined") return require.apply(this, arguments);
-  throw Error('Dynamic require of "' + x + '" is not supported');
-});
 var __esm = (fn, res) => function __init() {
   return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-};
-var __commonJS = (cb, mod) => function __require2() {
-  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var __export = (target, all) => {
   for (var name2 in all)
     __defProp(target, name2, { get: all[name2], enumerable: true });
 };
-var __copyProps = (to, from, except2, desc2) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except2)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc2 = __getOwnPropDesc(from, key)) || desc2.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 
 // node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/util.js
 var util, objectUtil, ZodParsedType, getParsedType;
@@ -449,8 +420,8 @@ var init_parseUtil = __esm({
     init_errors();
     init_en();
     makeIssue = (params) => {
-      const { data, path: path2, errorMaps, issueData } = params;
-      const fullPath = [...path2, ...issueData.path || []];
+      const { data, path, errorMaps, issueData } = params;
+      const fullPath = [...path, ...issueData.path || []];
       const fullIssue = {
         ...issueData,
         path: fullPath
@@ -758,11 +729,11 @@ var init_types = __esm({
     init_parseUtil();
     init_util();
     ParseInputLazyPath = class {
-      constructor(parent, value, path2, key) {
+      constructor(parent, value, path, key) {
         this._cachedPath = [];
         this.parent = parent;
         this.data = value;
-        this._path = path2;
+        this._path = path;
         this._key = key;
       }
       get path() {
@@ -5708,13 +5679,13 @@ function Subscribe(postgres2, options) {
       }
     }
     function handle(a, b2) {
-      const path2 = b2.relation.schema + "." + b2.relation.table;
+      const path = b2.relation.schema + "." + b2.relation.table;
       call("*", a, b2);
-      call("*:" + path2, a, b2);
-      b2.relation.keys.length && call("*:" + path2 + "=" + b2.relation.keys.map((x2) => a[x2.name]), a, b2);
+      call("*:" + path, a, b2);
+      b2.relation.keys.length && call("*:" + path + "=" + b2.relation.keys.map((x2) => a[x2.name]), a, b2);
       call(b2.command, a, b2);
-      call(b2.command + ":" + path2, a, b2);
-      b2.relation.keys.length && call(b2.command + ":" + path2 + "=" + b2.relation.keys.map((x2) => a[x2.name]), a, b2);
+      call(b2.command + ":" + path, a, b2);
+      b2.relation.keys.length && call(b2.command + ":" + path + "=" + b2.relation.keys.map((x2) => a[x2.name]), a, b2);
     }
     function pong() {
       const x2 = Buffer.alloc(34);
@@ -5827,8 +5798,8 @@ function parseEvent(x) {
   const xs = x.match(/^(\*|insert|update|delete)?:?([^.]+?\.?[^=]+)?=?(.+)?/i) || [];
   if (!xs)
     throw new Error("Malformed subscribe pattern: " + x);
-  const [, command, path2, key] = xs;
-  return (command || "*") + (path2 ? ":" + (path2.indexOf(".") === -1 ? "public." + path2 : path2) : "") + (key ? "=" + key : "");
+  const [, command, path, key] = xs;
+  return (command || "*") + (path ? ":" + (path.indexOf(".") === -1 ? "public." + path : path) : "") + (key ? "=" + key : "");
 }
 var noop2;
 var init_subscribe = __esm({
@@ -5966,10 +5937,10 @@ function Postgres(a, b2) {
       });
       return query;
     }
-    function file(path2, args = [], options2 = {}) {
+    function file(path, args = [], options2 = {}) {
       arguments.length === 2 && !Array.isArray(args) && (options2 = args, args = []);
       const query = new Query([], args, (query2) => {
-        fs.readFile(path2, "utf8", (err, string) => {
+        fs.readFile(path, "utf8", (err, string) => {
           if (err)
             return query2.reject(err);
           query2.strings = [string];
@@ -6371,8 +6342,8 @@ var init_logger = __esm({
     DefaultLogger = class {
       static [entityKind] = "DefaultLogger";
       writer;
-      constructor(config2) {
-        this.writer = config2?.writer ?? new ConsoleLogWriter();
+      constructor(config) {
+        this.writer = config?.writer ?? new ConsoleLogWriter();
       }
       logQuery(query, params) {
         const stringifiedParams = params.map((p) => {
@@ -6430,24 +6401,24 @@ var init_column = __esm({
   "node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/column.js"() {
     init_entity();
     Column = class {
-      constructor(table, config2) {
+      constructor(table, config) {
         this.table = table;
-        this.config = config2;
-        this.name = config2.name;
-        this.keyAsName = config2.keyAsName;
-        this.notNull = config2.notNull;
-        this.default = config2.default;
-        this.defaultFn = config2.defaultFn;
-        this.onUpdateFn = config2.onUpdateFn;
-        this.hasDefault = config2.hasDefault;
-        this.primary = config2.primaryKey;
-        this.isUnique = config2.isUnique;
-        this.uniqueName = config2.uniqueName;
-        this.uniqueType = config2.uniqueType;
-        this.dataType = config2.dataType;
-        this.columnType = config2.columnType;
-        this.generated = config2.generated;
-        this.generatedIdentity = config2.generatedIdentity;
+        this.config = config;
+        this.name = config.name;
+        this.keyAsName = config.keyAsName;
+        this.notNull = config.notNull;
+        this.default = config.default;
+        this.defaultFn = config.defaultFn;
+        this.onUpdateFn = config.onUpdateFn;
+        this.hasDefault = config.hasDefault;
+        this.primary = config.primaryKey;
+        this.isUnique = config.isUnique;
+        this.uniqueName = config.uniqueName;
+        this.uniqueType = config.uniqueType;
+        this.dataType = config.dataType;
+        this.columnType = config.columnType;
+        this.generated = config.generated;
+        this.generatedIdentity = config.generatedIdentity;
       }
       static [entityKind] = "Column";
       name;
@@ -6612,9 +6583,9 @@ var init_foreign_keys = __esm({
       _onUpdate = "no action";
       /** @internal */
       _onDelete = "no action";
-      constructor(config2, actions) {
+      constructor(config, actions) {
         this.reference = () => {
-          const { name: name2, columns, foreignColumns } = config2();
+          const { name: name2, columns, foreignColumns } = config();
           return { name: name2, columns, foreignTable: foreignColumns[0].table, foreignColumns };
         };
         if (actions) {
@@ -6829,10 +6800,10 @@ var init_common = __esm({
         this.foreignKeyConfigs.push({ ref, actions });
         return this;
       }
-      unique(name2, config2) {
+      unique(name2, config) {
         this.config.isUnique = true;
         this.config.uniqueName = name2;
-        this.config.uniqueType = config2?.nulls;
+        this.config.uniqueType = config?.nulls;
         return this;
       }
       generatedAlwaysAs(as) {
@@ -6871,11 +6842,11 @@ var init_common = __esm({
       }
     };
     PgColumn = class extends Column {
-      constructor(table, config2) {
-        if (!config2.uniqueName) {
-          config2.uniqueName = uniqueKeyName(table, [config2.name]);
+      constructor(table, config) {
+        if (!config.uniqueName) {
+          config.uniqueName = uniqueKeyName(table, [config.name]);
         }
-        super(table, config2);
+        super(table, config);
         this.table = table;
       }
       static [entityKind] = "PgColumn";
@@ -6976,11 +6947,11 @@ var init_common = __esm({
       }
     };
     PgArray = class _PgArray extends PgColumn {
-      constructor(table, config2, baseColumn, range) {
-        super(table, config2);
+      constructor(table, config, baseColumn, range) {
+        super(table, config);
         this.baseColumn = baseColumn;
         this.range = range;
-        this.size = config2.size;
+        this.size = config.size;
       }
       size;
       static [entityKind] = "PgArray";
@@ -7055,9 +7026,9 @@ var init_enum = __esm({
       static [entityKind] = "PgEnumObjectColumn";
       enum;
       enumValues = this.config.enum.enumValues;
-      constructor(table, config2) {
-        super(table, config2);
-        this.enum = config2.enum;
+      constructor(table, config) {
+        super(table, config);
+        this.enum = config.enum;
       }
       getSQLType() {
         return this.enum.enumName;
@@ -7082,9 +7053,9 @@ var init_enum = __esm({
       static [entityKind] = "PgEnumColumn";
       enum = this.config.enum;
       enumValues = this.config.enum.enumValues;
-      constructor(table, config2) {
-        super(table, config2);
-        this.enum = config2.enum;
+      constructor(table, config) {
+        super(table, config);
+        this.enum = config.enum;
       }
       getSQLType() {
         return this.enum.enumName;
@@ -7356,9 +7327,9 @@ var init_sql = __esm({
         this.queryChunks.push(...query.queryChunks);
         return this;
       }
-      toQuery(config2) {
+      toQuery(config) {
         return tracer.startActiveSpan("drizzle.buildSQL", (span) => {
-          const query = this.buildQueryFromSourceParams(this.queryChunks, config2);
+          const query = this.buildQueryFromSourceParams(this.queryChunks, config);
           span?.setAttributes({
             "drizzle.query.text": query.sql,
             "drizzle.query.params": JSON.stringify(query.params)
@@ -7367,7 +7338,7 @@ var init_sql = __esm({
         });
       }
       buildQueryFromSourceParams(chunks, _config) {
-        const config2 = Object.assign({}, _config, {
+        const config = Object.assign({}, _config, {
           inlineParams: _config.inlineParams || this.shouldInlineParams,
           paramStartIndex: _config.paramStartIndex || { value: 0 }
         });
@@ -7378,7 +7349,7 @@ var init_sql = __esm({
           prepareTyping,
           inlineParams,
           paramStartIndex
-        } = config2;
+        } = config;
         return mergeQueries(chunks.map((chunk) => {
           if (is(chunk, StringChunk)) {
             return { sql: chunk.value.join(""), params: [] };
@@ -7398,11 +7369,11 @@ var init_sql = __esm({
               }
             }
             result3.push(new StringChunk(")"));
-            return this.buildQueryFromSourceParams(result3, config2);
+            return this.buildQueryFromSourceParams(result3, config);
           }
           if (is(chunk, _SQL)) {
             return this.buildQueryFromSourceParams(chunk.queryChunks, {
-              ...config2,
+              ...config,
               inlineParams: inlineParams || chunk.shouldInlineParams
             });
           }
@@ -7439,10 +7410,10 @@ var init_sql = __esm({
             }
             const mappedValue = chunk.value === null ? null : chunk.encoder.mapToDriverValue(chunk.value);
             if (is(mappedValue, _SQL)) {
-              return this.buildQueryFromSourceParams([mappedValue], config2);
+              return this.buildQueryFromSourceParams([mappedValue], config);
             }
             if (inlineParams) {
-              return { sql: this.mapInlineParam(mappedValue, config2), params: [] };
+              return { sql: this.mapInlineParam(mappedValue, config), params: [] };
             }
             let typings = ["none"];
             if (prepareTyping) {
@@ -7465,7 +7436,7 @@ var init_sql = __esm({
               chunk._.sql,
               new StringChunk(") "),
               new Name(chunk._.alias)
-            ], config2);
+            ], config);
           }
           if (isPgEnum(chunk)) {
             if (chunk.schema) {
@@ -7475,16 +7446,16 @@ var init_sql = __esm({
           }
           if (isSQLWrapper(chunk)) {
             if (chunk.shouldOmitSQLParens?.()) {
-              return this.buildQueryFromSourceParams([chunk.getSQL()], config2);
+              return this.buildQueryFromSourceParams([chunk.getSQL()], config);
             }
             return this.buildQueryFromSourceParams([
               new StringChunk("("),
               chunk.getSQL(),
               new StringChunk(")")
-            ], config2);
+            ], config);
           }
           if (inlineParams) {
-            return { sql: this.mapInlineParam(chunk, config2), params: [] };
+            return { sql: this.mapInlineParam(chunk, config), params: [] };
           }
           return { sql: escapeParam(paramStartIndex.value++, chunk), params: [chunk], typings: ["none"] };
         }));
@@ -7791,8 +7762,8 @@ var init_selection_proxy = __esm({
     SelectionProxyHandler = class _SelectionProxyHandler {
       static [entityKind] = "SelectionProxyHandler";
       config;
-      constructor(config2) {
-        this.config = { ...config2 };
+      constructor(config) {
+        this.config = { ...config };
       }
       get(subquery, prop) {
         if (prop === "_") {
@@ -7861,7 +7832,7 @@ var init_selection_proxy = __esm({
 function mapResultRow(columns, row, joinsNotNullableMap) {
   const nullifyMap = {};
   const result3 = columns.reduce(
-    (result22, { path: path2, field }, columnIndex) => {
+    (result22, { path, field }, columnIndex) => {
       let decoder;
       if (is(field, Column)) {
         decoder = field;
@@ -7873,8 +7844,8 @@ function mapResultRow(columns, row, joinsNotNullableMap) {
         decoder = field.sql.decoder;
       }
       let node = result22;
-      for (const [pathChunkIndex, pathChunk] of path2.entries()) {
-        if (pathChunkIndex < path2.length - 1) {
+      for (const [pathChunkIndex, pathChunk] of path.entries()) {
+        if (pathChunkIndex < path.length - 1) {
           if (!(pathChunk in node)) {
             node[pathChunk] = {};
           }
@@ -7882,8 +7853,8 @@ function mapResultRow(columns, row, joinsNotNullableMap) {
         } else {
           const rawValue = row[columnIndex];
           const value = node[pathChunk] = rawValue === null ? null : decoder.mapFromDriverValue(rawValue);
-          if (joinsNotNullableMap && is(field, Column) && path2.length === 2) {
-            const objectName = path2[0];
+          if (joinsNotNullableMap && is(field, Column) && path.length === 2) {
+            const objectName = path[0];
             if (!(objectName in nullifyMap)) {
               nullifyMap[objectName] = value === null ? getTableName(field.table) : false;
             } else if (typeof nullifyMap[objectName] === "string" && nullifyMap[objectName] !== getTableName(field.table)) {
@@ -8070,8 +8041,8 @@ var init_int_common = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/bigint.js
 function bigint(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (config2.mode === "number") {
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (config.mode === "number") {
     return new PgBigInt53Builder(name2);
   }
   return new PgBigInt64Builder(name2);
@@ -8133,8 +8104,8 @@ var init_bigint = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/bigserial.js
 function bigserial(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (config2.mode === "number") {
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (config.mode === "number") {
     return new PgBigSerial53Builder(name2);
   }
   return new PgBigSerial64Builder(name2);
@@ -8229,8 +8200,8 @@ var init_boolean = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/char.js
 function char(a, b2 = {}) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgCharBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgCharBuilder(name2, config);
 }
 var PgCharBuilder, PgChar;
 var init_char = __esm({
@@ -8240,10 +8211,10 @@ var init_char = __esm({
     init_common();
     PgCharBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgCharBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "string", "PgChar");
-        this.config.length = config2.length;
-        this.config.enumValues = config2.enum;
+        this.config.length = config.length;
+        this.config.enumValues = config.enum;
       }
       /** @internal */
       build(table) {
@@ -8295,8 +8266,8 @@ var init_cidr = __esm({
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/custom.js
 function customType(customTypeParams) {
   return (a, b2) => {
-    const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-    return new PgCustomColumnBuilder(name2, config2, customTypeParams);
+    const { name: name2, config } = getColumnNameAndConfig(a, b2);
+    return new PgCustomColumnBuilder(name2, config, customTypeParams);
   };
 }
 var PgCustomColumnBuilder, PgCustomColumn;
@@ -8325,11 +8296,11 @@ var init_custom = __esm({
       sqlName;
       mapTo;
       mapFrom;
-      constructor(table, config2) {
-        super(table, config2);
-        this.sqlName = config2.customTypeParams.dataType(config2.fieldConfig);
-        this.mapTo = config2.customTypeParams.toDriver;
-        this.mapFrom = config2.customTypeParams.fromDriver;
+      constructor(table, config) {
+        super(table, config);
+        this.sqlName = config.customTypeParams.dataType(config.fieldConfig);
+        this.mapTo = config.customTypeParams.toDriver;
+        this.mapFrom = config.customTypeParams.fromDriver;
       }
       getSQLType() {
         return this.sqlName;
@@ -8362,8 +8333,8 @@ var init_date_common = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/date.js
 function date(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (config2?.mode === "date") {
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (config?.mode === "date") {
     return new PgDateBuilder(name2);
   }
   return new PgDateStringBuilder(name2);
@@ -8526,8 +8497,8 @@ var init_integer = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/interval.js
 function interval(a, b2 = {}) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgIntervalBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgIntervalBuilder(name2, config);
 }
 var PgIntervalBuilder, PgInterval;
 var init_interval = __esm({
@@ -8580,8 +8551,8 @@ var init_json = __esm({
     };
     PgJson = class extends PgColumn {
       static [entityKind] = "PgJson";
-      constructor(table, config2) {
-        super(table, config2);
+      constructor(table, config) {
+        super(table, config);
       }
       getSQLType() {
         return "json";
@@ -8624,8 +8595,8 @@ var init_jsonb = __esm({
     };
     PgJsonb = class extends PgColumn {
       static [entityKind] = "PgJsonb";
-      constructor(table, config2) {
-        super(table, config2);
+      constructor(table, config) {
+        super(table, config);
       }
       getSQLType() {
         return "jsonb";
@@ -8649,8 +8620,8 @@ var init_jsonb = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/line.js
 function line(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (!config2?.mode || config2.mode === "tuple") {
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (!config?.mode || config.mode === "tuple") {
     return new PgLineBuilder(name2);
   }
   return new PgLineABCBuilder(name2);
@@ -8774,9 +8745,9 @@ var init_macaddr8 = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/numeric.js
 function numeric(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  const mode = config2?.mode;
-  return mode === "number" ? new PgNumericNumberBuilder(name2, config2?.precision, config2?.scale) : mode === "bigint" ? new PgNumericBigIntBuilder(name2, config2?.precision, config2?.scale) : new PgNumericBuilder(name2, config2?.precision, config2?.scale);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  const mode = config?.mode;
+  return mode === "number" ? new PgNumericNumberBuilder(name2, config?.precision, config?.scale) : mode === "bigint" ? new PgNumericBigIntBuilder(name2, config?.precision, config?.scale) : new PgNumericBuilder(name2, config?.precision, config?.scale);
 }
 var PgNumericBuilder, PgNumeric, PgNumericNumberBuilder, PgNumericNumber, PgNumericBigIntBuilder, PgNumericBigInt;
 var init_numeric = __esm({
@@ -8800,10 +8771,10 @@ var init_numeric = __esm({
       static [entityKind] = "PgNumeric";
       precision;
       scale;
-      constructor(table, config2) {
-        super(table, config2);
-        this.precision = config2.precision;
-        this.scale = config2.scale;
+      constructor(table, config) {
+        super(table, config);
+        this.precision = config.precision;
+        this.scale = config.scale;
       }
       mapFromDriverValue(value) {
         if (typeof value === "string") return value;
@@ -8838,10 +8809,10 @@ var init_numeric = __esm({
       static [entityKind] = "PgNumericNumber";
       precision;
       scale;
-      constructor(table, config2) {
-        super(table, config2);
-        this.precision = config2.precision;
-        this.scale = config2.scale;
+      constructor(table, config) {
+        super(table, config);
+        this.precision = config.precision;
+        this.scale = config.scale;
       }
       mapFromDriverValue(value) {
         if (typeof value === "number") return value;
@@ -8877,10 +8848,10 @@ var init_numeric = __esm({
       static [entityKind] = "PgNumericBigInt";
       precision;
       scale;
-      constructor(table, config2) {
-        super(table, config2);
-        this.precision = config2.precision;
-        this.scale = config2.scale;
+      constructor(table, config) {
+        super(table, config);
+        this.precision = config.precision;
+        this.scale = config.scale;
       }
       mapFromDriverValue = BigInt;
       mapToDriverValue = String;
@@ -8899,8 +8870,8 @@ var init_numeric = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/point.js
 function point(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (!config2?.mode || config2.mode === "tuple") {
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (!config?.mode || config.mode === "tuple") {
     return new PgPointTupleBuilder(name2);
   }
   return new PgPointObjectBuilder(name2);
@@ -9017,8 +8988,8 @@ var init_utils2 = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/postgis_extension/geometry.js
 function geometry(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (!config2?.mode || config2.mode === "tuple") {
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (!config?.mode || config.mode === "tuple") {
     return new PgGeometryBuilder(name2);
   }
   return new PgGeometryObjectBuilder(name2);
@@ -9106,8 +9077,8 @@ var init_real = __esm({
     };
     PgReal = class extends PgColumn {
       static [entityKind] = "PgReal";
-      constructor(table, config2) {
-        super(table, config2);
+      constructor(table, config) {
+        super(table, config);
       }
       getSQLType() {
         return "real";
@@ -9222,8 +9193,8 @@ var init_smallserial = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/text.js
 function text(a, b2 = {}) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgTextBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgTextBuilder(name2, config);
 }
 var PgTextBuilder, PgText;
 var init_text = __esm({
@@ -9233,9 +9204,9 @@ var init_text = __esm({
     init_common();
     PgTextBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgTextBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "string", "PgText");
-        this.config.enumValues = config2.enum;
+        this.config.enumValues = config.enum;
       }
       /** @internal */
       build(table) {
@@ -9254,8 +9225,8 @@ var init_text = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/time.js
 function time(a, b2 = {}) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgTimeBuilder(name2, config2.withTimezone ?? false, config2.precision);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgTimeBuilder(name2, config.withTimezone ?? false, config.precision);
 }
 var PgTimeBuilder, PgTime;
 var init_time = __esm({
@@ -9282,10 +9253,10 @@ var init_time = __esm({
       static [entityKind] = "PgTime";
       withTimezone;
       precision;
-      constructor(table, config2) {
-        super(table, config2);
-        this.withTimezone = config2.withTimezone;
-        this.precision = config2.precision;
+      constructor(table, config) {
+        super(table, config);
+        this.withTimezone = config.withTimezone;
+        this.precision = config.precision;
       }
       getSQLType() {
         const precision = this.precision === void 0 ? "" : `(${this.precision})`;
@@ -9297,11 +9268,11 @@ var init_time = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/timestamp.js
 function timestamp(a, b2 = {}) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  if (config2?.mode === "string") {
-    return new PgTimestampStringBuilder(name2, config2.withTimezone ?? false, config2.precision);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  if (config?.mode === "string") {
+    return new PgTimestampStringBuilder(name2, config.withTimezone ?? false, config.precision);
   }
-  return new PgTimestampBuilder(name2, config2?.withTimezone ?? false, config2?.precision);
+  return new PgTimestampBuilder(name2, config?.withTimezone ?? false, config?.precision);
 }
 var PgTimestampBuilder, PgTimestamp, PgTimestampStringBuilder, PgTimestampString;
 var init_timestamp = __esm({
@@ -9326,10 +9297,10 @@ var init_timestamp = __esm({
       static [entityKind] = "PgTimestamp";
       withTimezone;
       precision;
-      constructor(table, config2) {
-        super(table, config2);
-        this.withTimezone = config2.withTimezone;
-        this.precision = config2.precision;
+      constructor(table, config) {
+        super(table, config);
+        this.withTimezone = config.withTimezone;
+        this.precision = config.precision;
       }
       getSQLType() {
         const precision = this.precision === void 0 ? "" : ` (${this.precision})`;
@@ -9362,10 +9333,10 @@ var init_timestamp = __esm({
       static [entityKind] = "PgTimestampString";
       withTimezone;
       precision;
-      constructor(table, config2) {
-        super(table, config2);
-        this.withTimezone = config2.withTimezone;
-        this.precision = config2.precision;
+      constructor(table, config) {
+        super(table, config);
+        this.withTimezone = config.withTimezone;
+        this.precision = config.precision;
       }
       getSQLType() {
         const precision = this.precision === void 0 ? "" : `(${this.precision})`;
@@ -9422,8 +9393,8 @@ var init_uuid = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/varchar.js
 function varchar(a, b2 = {}) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgVarcharBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgVarcharBuilder(name2, config);
 }
 var PgVarcharBuilder, PgVarchar;
 var init_varchar = __esm({
@@ -9433,10 +9404,10 @@ var init_varchar = __esm({
     init_common();
     PgVarcharBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgVarcharBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "string", "PgVarchar");
-        this.config.length = config2.length;
-        this.config.enumValues = config2.enum;
+        this.config.length = config.length;
+        this.config.enumValues = config.enum;
       }
       /** @internal */
       build(table) {
@@ -9459,8 +9430,8 @@ var init_varchar = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/vector_extension/bit.js
 function bit(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgBinaryVectorBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgBinaryVectorBuilder(name2, config);
 }
 var PgBinaryVectorBuilder, PgBinaryVector;
 var init_bit = __esm({
@@ -9470,9 +9441,9 @@ var init_bit = __esm({
     init_common();
     PgBinaryVectorBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgBinaryVectorBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "string", "PgBinaryVector");
-        this.config.dimensions = config2.dimensions;
+        this.config.dimensions = config.dimensions;
       }
       /** @internal */
       build(table) {
@@ -9494,8 +9465,8 @@ var init_bit = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/vector_extension/halfvec.js
 function halfvec(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgHalfVectorBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgHalfVectorBuilder(name2, config);
 }
 var PgHalfVectorBuilder, PgHalfVector;
 var init_halfvec = __esm({
@@ -9505,9 +9476,9 @@ var init_halfvec = __esm({
     init_common();
     PgHalfVectorBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgHalfVectorBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "array", "PgHalfVector");
-        this.config.dimensions = config2.dimensions;
+        this.config.dimensions = config.dimensions;
       }
       /** @internal */
       build(table) {
@@ -9535,8 +9506,8 @@ var init_halfvec = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/vector_extension/sparsevec.js
 function sparsevec(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgSparseVectorBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgSparseVectorBuilder(name2, config);
 }
 var PgSparseVectorBuilder, PgSparseVector;
 var init_sparsevec = __esm({
@@ -9546,9 +9517,9 @@ var init_sparsevec = __esm({
     init_common();
     PgSparseVectorBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgSparseVectorBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "string", "PgSparseVector");
-        this.config.dimensions = config2.dimensions;
+        this.config.dimensions = config.dimensions;
       }
       /** @internal */
       build(table) {
@@ -9570,8 +9541,8 @@ var init_sparsevec = __esm({
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/columns/vector_extension/vector.js
 function vector(a, b2) {
-  const { name: name2, config: config2 } = getColumnNameAndConfig(a, b2);
-  return new PgVectorBuilder(name2, config2);
+  const { name: name2, config } = getColumnNameAndConfig(a, b2);
+  return new PgVectorBuilder(name2, config);
 }
 var PgVectorBuilder, PgVector;
 var init_vector = __esm({
@@ -9581,9 +9552,9 @@ var init_vector = __esm({
     init_common();
     PgVectorBuilder = class extends PgColumnBuilder {
       static [entityKind] = "PgVectorBuilder";
-      constructor(name2, config2) {
+      constructor(name2, config) {
         super(name2, "array", "PgVector");
-        this.config.dimensions = config2.dimensions;
+        this.config.dimensions = config.dimensions;
       }
       /** @internal */
       build(table) {
@@ -9931,8 +9902,8 @@ var init_indexes = __esm({
     Index = class {
       static [entityKind] = "PgIndex";
       config;
-      constructor(config2, table) {
-        this.config = { ...config2, table };
+      constructor(config, table) {
+        this.config = { ...config, table };
       }
     };
   }
@@ -9944,14 +9915,14 @@ var init_policies = __esm({
   "node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/policies.js"() {
     init_entity();
     PgPolicy = class {
-      constructor(name2, config2) {
+      constructor(name2, config) {
         this.name = name2;
-        if (config2) {
-          this.as = config2.as;
-          this.for = config2.for;
-          this.to = config2.to;
-          this.using = config2.using;
-          this.withCheck = config2.withCheck;
+        if (config) {
+          this.as = config.as;
+          this.for = config.for;
+          this.to = config.to;
+          this.using = config.using;
+          this.withCheck = config.withCheck;
         }
       }
       static [entityKind] = "PgPolicy";
@@ -10391,18 +10362,18 @@ function relations(table, relations2) {
   );
 }
 function createOne(sourceTable) {
-  return function one(table, config2) {
+  return function one(table, config) {
     return new One(
       sourceTable,
       table,
-      config2,
-      config2?.fields.reduce((res, f) => res && f.notNull, true) ?? false
+      config,
+      config?.fields.reduce((res, f) => res && f.notNull, true) ?? false
     );
   };
 }
 function createMany(sourceTable) {
-  return function many(referencedTable, config2) {
-    return new Many(sourceTable, referencedTable, config2);
+  return function many(referencedTable, config) {
+    return new Many(sourceTable, referencedTable, config);
   };
 }
 function normalizeRelation(schema, tableNamesMap, relation) {
@@ -10522,16 +10493,16 @@ var init_relations = __esm({
       fieldName;
     };
     Relations = class {
-      constructor(table, config2) {
+      constructor(table, config) {
         this.table = table;
-        this.config = config2;
+        this.config = config;
       }
       static [entityKind] = "Relations";
     };
     One = class _One extends Relation {
-      constructor(sourceTable, referencedTable, config2, isNullable) {
-        super(sourceTable, referencedTable, config2?.relationName);
-        this.config = config2;
+      constructor(sourceTable, referencedTable, config, isNullable) {
+        super(sourceTable, referencedTable, config?.relationName);
+        this.config = config;
         this.isNullable = isNullable;
       }
       static [entityKind] = "One";
@@ -10547,9 +10518,9 @@ var init_relations = __esm({
       }
     };
     Many = class _Many extends Relation {
-      constructor(sourceTable, referencedTable, config2) {
-        super(sourceTable, referencedTable, config2?.relationName);
-        this.config = config2;
+      constructor(sourceTable, referencedTable, config) {
+        super(sourceTable, referencedTable, config?.relationName);
+        this.config = config;
       }
       static [entityKind] = "Many";
       withFieldName(fieldName) {
@@ -10696,12 +10667,12 @@ var init_dialect = __esm({
       static [entityKind] = "PgDialect";
       /** @internal */
       casing;
-      constructor(config2) {
-        this.casing = new CasingCache(config2?.casing);
+      constructor(config) {
+        this.casing = new CasingCache(config?.casing);
       }
-      async migrate(migrations, session, config2) {
-        const migrationsTable = typeof config2 === "string" ? "__drizzle_migrations" : config2.migrationsTable ?? "__drizzle_migrations";
-        const migrationsSchema = typeof config2 === "string" ? "drizzle" : config2.migrationsSchema ?? "drizzle";
+      async migrate(migrations, session, config) {
+        const migrationsTable = typeof config === "string" ? "__drizzle_migrations" : config.migrationsTable ?? "__drizzle_migrations";
+        const migrationsSchema = typeof config === "string" ? "drizzle" : config.migrationsSchema ?? "drizzle";
         const migrationTableCreate = sql`
 			CREATE TABLE IF NOT EXISTS ${sql.identifier(migrationsSchema)}.${sql.identifier(migrationsTable)} (
 				id SERIAL PRIMARY KEY,
@@ -11580,7 +11551,7 @@ var init_dialect = __esm({
         tableNamesMap,
         table,
         tableConfig,
-        queryConfig: config2,
+        queryConfig: config,
         tableAlias,
         nestedQueryRelation,
         joinOn
@@ -11588,7 +11559,7 @@ var init_dialect = __esm({
         let selection = [];
         let limit, offset, orderBy = [], where;
         const joins = [];
-        if (config2 === true) {
+        if (config === true) {
           const selectionEntries = Object.entries(tableConfig.columns);
           selection = selectionEntries.map(([key, value]) => ({
             dbKey: value.name,
@@ -11602,15 +11573,15 @@ var init_dialect = __esm({
           const aliasedColumns = Object.fromEntries(
             Object.entries(tableConfig.columns).map(([key, value]) => [key, aliasedTableColumn(value, tableAlias)])
           );
-          if (config2.where) {
-            const whereSql = typeof config2.where === "function" ? config2.where(aliasedColumns, getOperators()) : config2.where;
+          if (config.where) {
+            const whereSql = typeof config.where === "function" ? config.where(aliasedColumns, getOperators()) : config.where;
             where = whereSql && mapColumnsInSQLToAlias(whereSql, tableAlias);
           }
           const fieldsSelection = [];
           let selectedColumns = [];
-          if (config2.columns) {
+          if (config.columns) {
             let isIncludeMode = false;
-            for (const [field, value] of Object.entries(config2.columns)) {
+            for (const [field, value] of Object.entries(config.columns)) {
               if (value === void 0) {
                 continue;
               }
@@ -11622,7 +11593,7 @@ var init_dialect = __esm({
               }
             }
             if (selectedColumns.length > 0) {
-              selectedColumns = isIncludeMode ? selectedColumns.filter((c) => config2.columns?.[c] === true) : Object.keys(tableConfig.columns).filter((key) => !selectedColumns.includes(key));
+              selectedColumns = isIncludeMode ? selectedColumns.filter((c) => config.columns?.[c] === true) : Object.keys(tableConfig.columns).filter((key) => !selectedColumns.includes(key));
             }
           } else {
             selectedColumns = Object.keys(tableConfig.columns);
@@ -11632,12 +11603,12 @@ var init_dialect = __esm({
             fieldsSelection.push({ tsKey: field, value: column });
           }
           let selectedRelations = [];
-          if (config2.with) {
-            selectedRelations = Object.entries(config2.with).filter((entry) => !!entry[1]).map(([tsKey, queryConfig]) => ({ tsKey, queryConfig, relation: tableConfig.relations[tsKey] }));
+          if (config.with) {
+            selectedRelations = Object.entries(config.with).filter((entry) => !!entry[1]).map(([tsKey, queryConfig]) => ({ tsKey, queryConfig, relation: tableConfig.relations[tsKey] }));
           }
           let extras;
-          if (config2.extras) {
-            extras = typeof config2.extras === "function" ? config2.extras(aliasedColumns, { sql }) : config2.extras;
+          if (config.extras) {
+            extras = typeof config.extras === "function" ? config.extras(aliasedColumns, { sql }) : config.extras;
             for (const [tsKey, value] of Object.entries(extras)) {
               fieldsSelection.push({
                 tsKey,
@@ -11655,7 +11626,7 @@ var init_dialect = __esm({
               selection: []
             });
           }
-          let orderByOrig = typeof config2.orderBy === "function" ? config2.orderBy(aliasedColumns, getOrderByOperators()) : config2.orderBy ?? [];
+          let orderByOrig = typeof config.orderBy === "function" ? config.orderBy(aliasedColumns, getOrderByOperators()) : config.orderBy ?? [];
           if (!Array.isArray(orderByOrig)) {
             orderByOrig = [orderByOrig];
           }
@@ -11665,8 +11636,8 @@ var init_dialect = __esm({
             }
             return mapColumnsInSQLToAlias(orderByValue, tableAlias);
           });
-          limit = config2.limit;
-          offset = config2.offset;
+          limit = config.limit;
+          offset = config.offset;
           for (const {
             tsKey: selectedRelationTsKey,
             queryConfig: selectedRelationConfigValue,
@@ -11854,14 +11825,14 @@ var init_select2 = __esm({
       dialect;
       withList = [];
       distinct;
-      constructor(config2) {
-        this.fields = config2.fields;
-        this.session = config2.session;
-        this.dialect = config2.dialect;
-        if (config2.withList) {
-          this.withList = config2.withList;
+      constructor(config) {
+        this.fields = config.fields;
+        this.session = config.session;
+        this.dialect = config.dialect;
+        if (config.withList) {
+          this.withList = config.withList;
         }
-        this.distinct = config2.distinct;
+        this.distinct = config.distinct;
       }
       authToken;
       /** @internal */
@@ -12550,8 +12521,8 @@ var init_select2 = __esm({
        * @param strength the lock strength.
        * @param config the lock configuration.
        */
-      for(strength, config2 = {}) {
-        this.config.lockingClause = { strength, config: config2 };
+      for(strength, config = {}) {
+        this.config.lockingClause = { strength, config };
         return this;
       }
       /** @internal */
@@ -12583,8 +12554,8 @@ var init_select2 = __esm({
       $dynamic() {
         return this;
       }
-      $withCache(config2) {
-        this.cacheConfig = config2 === void 0 ? { config: {}, enable: true, autoInvalidate: true } : config2 === false ? { enable: false } : { enable: true, autoInvalidate: true, ...config2 };
+      $withCache(config) {
+        this.cacheConfig = config === void 0 ? { config: {}, enable: true, autoInvalidate: true } : config === false ? { enable: false } : { enable: true, autoInvalidate: true, ...config };
         return this;
       }
     };
@@ -12592,11 +12563,11 @@ var init_select2 = __esm({
       static [entityKind] = "PgSelect";
       /** @internal */
       _prepare(name2) {
-        const { session, config: config2, dialect, joinsNotNullableMap, authToken, cacheConfig, usedTables } = this;
+        const { session, config, dialect, joinsNotNullableMap, authToken, cacheConfig, usedTables } = this;
         if (!session) {
           throw new Error("Cannot execute a query on a query builder. Please use a database instance instead.");
         }
-        const { fields } = config2;
+        const { fields } = config;
         return tracer.startActiveSpan("drizzle.prepareQuery", () => {
           const fieldsList = orderSelectedFields(fields);
           const query = session.prepareQuery(dialect.sqlToQuery(this.getSQL()), fieldsList, name2, true, void 0, {
@@ -12774,8 +12745,8 @@ var init_view = __esm({
       }
       static [entityKind] = "PgDefaultViewBuilderCore";
       config = {};
-      with(config2) {
-        this.config.with = config2;
+      with(config) {
+        this.config.with = config;
         return this;
       }
     };
@@ -12863,8 +12834,8 @@ var init_view = __esm({
         this.config.using = using;
         return this;
       }
-      with(config2) {
-        this.config.with = config2;
+      with(config) {
+        this.config.with = config;
         return this;
       }
       tablespace(tablespace) {
@@ -12967,8 +12938,8 @@ var init_view = __esm({
     PgView = class extends PgViewBase {
       static [entityKind] = "PgView";
       [PgViewConfig];
-      constructor({ pgConfig, config: config2 }) {
-        super(config2);
+      constructor({ pgConfig, config }) {
+        super(config);
         if (pgConfig) {
           this[PgViewConfig] = {
             with: pgConfig.with
@@ -12980,8 +12951,8 @@ var init_view = __esm({
     PgMaterializedView = class extends PgViewBase {
       static [entityKind] = "PgMaterializedView";
       [PgMaterializedViewConfig];
-      constructor({ pgConfig, config: config2 }) {
-        super(config2);
+      constructor({ pgConfig, config }) {
+        super(config);
         this[PgMaterializedViewConfig] = {
           with: pgConfig?.with,
           using: pgConfig?.using,
@@ -13227,13 +13198,13 @@ var init_insert = __esm({
        *   .onConflictDoNothing({ target: cars.id });
        * ```
        */
-      onConflictDoNothing(config2 = {}) {
-        if (config2.target === void 0) {
+      onConflictDoNothing(config = {}) {
+        if (config.target === void 0) {
           this.config.onConflict = sql`do nothing`;
         } else {
           let targetColumn = "";
-          targetColumn = Array.isArray(config2.target) ? config2.target.map((it) => this.dialect.escapeName(this.dialect.casing.getColumnCasing(it))).join(",") : this.dialect.escapeName(this.dialect.casing.getColumnCasing(config2.target));
-          const whereSql = config2.where ? sql` where ${config2.where}` : void 0;
+          targetColumn = Array.isArray(config.target) ? config.target.map((it) => this.dialect.escapeName(this.dialect.casing.getColumnCasing(it))).join(",") : this.dialect.escapeName(this.dialect.casing.getColumnCasing(config.target));
+          const whereSql = config.where ? sql` where ${config.where}` : void 0;
           this.config.onConflict = sql`(${sql.raw(targetColumn)})${whereSql} do nothing`;
         }
         return this;
@@ -13267,18 +13238,18 @@ var init_insert = __esm({
        *   });
        * ```
        */
-      onConflictDoUpdate(config2) {
-        if (config2.where && (config2.targetWhere || config2.setWhere)) {
+      onConflictDoUpdate(config) {
+        if (config.where && (config.targetWhere || config.setWhere)) {
           throw new Error(
             'You cannot use both "where" and "targetWhere"/"setWhere" at the same time - "where" is deprecated, use "targetWhere" or "setWhere" instead.'
           );
         }
-        const whereSql = config2.where ? sql` where ${config2.where}` : void 0;
-        const targetWhereSql = config2.targetWhere ? sql` where ${config2.targetWhere}` : void 0;
-        const setWhereSql = config2.setWhere ? sql` where ${config2.setWhere}` : void 0;
-        const setSql = this.dialect.buildUpdateSet(this.config.table, mapUpdateSet(this.config.table, config2.set));
+        const whereSql = config.where ? sql` where ${config.where}` : void 0;
+        const targetWhereSql = config.targetWhere ? sql` where ${config.targetWhere}` : void 0;
+        const setWhereSql = config.setWhere ? sql` where ${config.setWhere}` : void 0;
+        const setSql = this.dialect.buildUpdateSet(this.config.table, mapUpdateSet(this.config.table, config.set));
         let targetColumn = "";
-        targetColumn = Array.isArray(config2.target) ? config2.target.map((it) => this.dialect.escapeName(this.dialect.casing.getColumnCasing(it))).join(",") : this.dialect.escapeName(this.dialect.casing.getColumnCasing(config2.target));
+        targetColumn = Array.isArray(config.target) ? config.target.map((it) => this.dialect.escapeName(this.dialect.casing.getColumnCasing(it))).join(",") : this.dialect.escapeName(this.dialect.casing.getColumnCasing(config.target));
         this.config.onConflict = sql`(${sql.raw(targetColumn)})${targetWhereSql} do update set ${setSql}${whereSql}${setWhereSql}`;
         return this;
       }
@@ -13716,7 +13687,7 @@ var init_query2 = __esm({
         this.session = session;
       }
       static [entityKind] = "PgRelationalQueryBuilder";
-      findMany(config2) {
+      findMany(config) {
         return new PgRelationalQuery(
           this.fullSchema,
           this.schema,
@@ -13725,11 +13696,11 @@ var init_query2 = __esm({
           this.tableConfig,
           this.dialect,
           this.session,
-          config2 ? config2 : {},
+          config ? config : {},
           "many"
         );
       }
-      findFirst(config2) {
+      findFirst(config) {
         return new PgRelationalQuery(
           this.fullSchema,
           this.schema,
@@ -13738,13 +13709,13 @@ var init_query2 = __esm({
           this.tableConfig,
           this.dialect,
           this.session,
-          config2 ? { ...config2, limit: 1 } : { limit: 1 },
+          config ? { ...config, limit: 1 } : { limit: 1 },
           "first"
         );
       }
     };
     PgRelationalQuery = class extends QueryPromise {
-      constructor(fullSchema, schema, tableNamesMap, table, tableConfig, dialect, session, config2, mode) {
+      constructor(fullSchema, schema, tableNamesMap, table, tableConfig, dialect, session, config, mode) {
         super();
         this.fullSchema = fullSchema;
         this.schema = schema;
@@ -13753,7 +13724,7 @@ var init_query2 = __esm({
         this.tableConfig = tableConfig;
         this.dialect = dialect;
         this.session = session;
-        this.config = config2;
+        this.config = config;
         this.mode = mode;
       }
       static [entityKind] = "PgRelationalQuery";
@@ -14141,8 +14112,8 @@ var init_db = __esm({
           (result3) => prepared.mapResult(result3, true)
         );
       }
-      transaction(transaction, config2) {
-        return this.session.transaction(transaction, config2);
+      transaction(transaction, config) {
+        return this.session.transaction(transaction, config);
       }
     };
   }
@@ -14200,12 +14171,12 @@ var init_roles = __esm({
   "node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/pg-core/roles.js"() {
     init_entity();
     PgRole = class {
-      constructor(name2, config2) {
+      constructor(name2, config) {
         this.name = name2;
-        if (config2) {
-          this.createDb = config2.createDb;
-          this.createRole = config2.createRole;
-          this.inherit = config2.inherit;
+        if (config) {
+          this.createDb = config.createDb;
+          this.createRole = config.createRole;
+          this.inherit = config.inherit;
         }
       }
       static [entityKind] = "PgRole";
@@ -14439,21 +14410,21 @@ var init_session = __esm({
         throw new TransactionRollbackError();
       }
       /** @internal */
-      getTransactionConfigSQL(config2) {
+      getTransactionConfigSQL(config) {
         const chunks = [];
-        if (config2.isolationLevel) {
-          chunks.push(`isolation level ${config2.isolationLevel}`);
+        if (config.isolationLevel) {
+          chunks.push(`isolation level ${config.isolationLevel}`);
         }
-        if (config2.accessMode) {
-          chunks.push(config2.accessMode);
+        if (config.accessMode) {
+          chunks.push(config.accessMode);
         }
-        if (typeof config2.deferrable === "boolean") {
-          chunks.push(config2.deferrable ? "deferrable" : "not deferrable");
+        if (typeof config.deferrable === "boolean") {
+          chunks.push(config.deferrable ? "deferrable" : "not deferrable");
         }
         return sql.raw(chunks.join(" "));
       }
-      setTransaction(config2) {
-        return this.session.execute(sql`set transaction ${this.getTransactionConfigSQL(config2)}`);
+      setTransaction(config) {
+        return this.session.execute(sql`set transaction ${this.getTransactionConfigSQL(config)}`);
       }
     };
   }
@@ -14610,7 +14581,7 @@ var init_session2 = __esm({
       queryObjects(query, params) {
         return this.client.unsafe(query, params);
       }
-      transaction(transaction, config2) {
+      transaction(transaction, config) {
         return this.client.begin(async (client2) => {
           const session = new _PostgresJsSession(
             client2,
@@ -14619,8 +14590,8 @@ var init_session2 = __esm({
             this.options
           );
           const tx = new PostgresJsTransaction(this.dialect, session, this.schema);
-          if (config2) {
-            await tx.setTransaction(config2);
+          if (config) {
+            await tx.setTransaction(config);
           }
           return transaction(tx);
         });
@@ -14649,7 +14620,7 @@ var init_session2 = __esm({
 });
 
 // node_modules/.pnpm/drizzle-orm@0.45.2_@opentelemetry+api@1.9.1_postgres@3.4.9/node_modules/drizzle-orm/postgres-js/driver.js
-function construct(client2, config2 = {}) {
+function construct(client2, config = {}) {
   const transparentParser = (val) => val;
   for (const type of ["1184", "1082", "1083", "1114", "1182", "1185", "1115", "1231"]) {
     client2.options.parsers[type] = transparentParser;
@@ -14657,31 +14628,31 @@ function construct(client2, config2 = {}) {
   }
   client2.options.serializers["114"] = transparentParser;
   client2.options.serializers["3802"] = transparentParser;
-  const dialect = new PgDialect({ casing: config2.casing });
+  const dialect = new PgDialect({ casing: config.casing });
   let logger;
-  if (config2.logger === true) {
+  if (config.logger === true) {
     logger = new DefaultLogger();
-  } else if (config2.logger !== false) {
-    logger = config2.logger;
+  } else if (config.logger !== false) {
+    logger = config.logger;
   }
   let schema;
-  if (config2.schema) {
+  if (config.schema) {
     const tablesConfig = extractTablesRelationalConfig(
-      config2.schema,
+      config.schema,
       createTableRelationsHelpers
     );
     schema = {
-      fullSchema: config2.schema,
+      fullSchema: config.schema,
       schema: tablesConfig.tables,
       tableNamesMap: tablesConfig.tableNamesMap
     };
   }
-  const session = new PostgresJsSession(client2, dialect, schema, { logger, cache: config2.cache });
+  const session = new PostgresJsSession(client2, dialect, schema, { logger, cache: config.cache });
   const db2 = new PostgresJsDatabase(dialect, session, schema);
   db2.$client = client2;
-  db2.$cache = config2.cache;
+  db2.$cache = config.cache;
   if (db2.$cache) {
-    db2.$cache["invalidate"] = config2.cache?.onMutate;
+    db2.$cache["invalidate"] = config.cache?.onMutate;
   }
   return db2;
 }
@@ -14694,8 +14665,8 @@ function drizzle(...params) {
     const { connection: connection2, client: client2, ...drizzleConfig } = params[0];
     if (client2) return construct(client2, drizzleConfig);
     if (typeof connection2 === "object" && connection2.url !== void 0) {
-      const { url, ...config2 } = connection2;
-      const instance2 = src_default(url, config2);
+      const { url, ...config } = connection2;
+      const instance2 = src_default(url, config);
       return construct(instance2, drizzleConfig);
     }
     const instance = src_default(connection2);
@@ -14718,13 +14689,13 @@ var init_driver = __esm({
       static [entityKind] = "PostgresJsDatabase";
     };
     ((drizzle2) => {
-      function mock(config2) {
+      function mock(config) {
         return construct({
           options: {
             parsers: {},
             serializers: {}
           }
-        }, config2);
+        }, config);
       }
       drizzle2.mock = mock;
     })(drizzle || (drizzle = {}));
@@ -14943,379 +14914,21 @@ var init_schema2 = __esm({
   }
 });
 
-// node_modules/.pnpm/dotenv@16.6.1/node_modules/dotenv/package.json
-var require_package = __commonJS({
-  "node_modules/.pnpm/dotenv@16.6.1/node_modules/dotenv/package.json"(exports, module) {
-    module.exports = {
-      name: "dotenv",
-      version: "16.6.1",
-      description: "Loads environment variables from .env file",
-      main: "lib/main.js",
-      types: "lib/main.d.ts",
-      exports: {
-        ".": {
-          types: "./lib/main.d.ts",
-          require: "./lib/main.js",
-          default: "./lib/main.js"
-        },
-        "./config": "./config.js",
-        "./config.js": "./config.js",
-        "./lib/env-options": "./lib/env-options.js",
-        "./lib/env-options.js": "./lib/env-options.js",
-        "./lib/cli-options": "./lib/cli-options.js",
-        "./lib/cli-options.js": "./lib/cli-options.js",
-        "./package.json": "./package.json"
-      },
-      scripts: {
-        "dts-check": "tsc --project tests/types/tsconfig.json",
-        lint: "standard",
-        pretest: "npm run lint && npm run dts-check",
-        test: "tap run --allow-empty-coverage --disable-coverage --timeout=60000",
-        "test:coverage": "tap run --show-full-coverage --timeout=60000 --coverage-report=text --coverage-report=lcov",
-        prerelease: "npm test",
-        release: "standard-version"
-      },
-      repository: {
-        type: "git",
-        url: "git://github.com/motdotla/dotenv.git"
-      },
-      homepage: "https://github.com/motdotla/dotenv#readme",
-      funding: "https://dotenvx.com",
-      keywords: [
-        "dotenv",
-        "env",
-        ".env",
-        "environment",
-        "variables",
-        "config",
-        "settings"
-      ],
-      readmeFilename: "README.md",
-      license: "BSD-2-Clause",
-      devDependencies: {
-        "@types/node": "^18.11.3",
-        decache: "^4.6.2",
-        sinon: "^14.0.1",
-        standard: "^17.0.0",
-        "standard-version": "^9.5.0",
-        tap: "^19.2.0",
-        typescript: "^4.8.4"
-      },
-      engines: {
-        node: ">=12"
-      },
-      browser: {
-        fs: false
-      }
-    };
-  }
-});
-
-// node_modules/.pnpm/dotenv@16.6.1/node_modules/dotenv/lib/main.js
-var require_main = __commonJS({
-  "node_modules/.pnpm/dotenv@16.6.1/node_modules/dotenv/lib/main.js"(exports, module) {
-    var fs3 = __require("fs");
-    var path2 = __require("path");
-    var os2 = __require("os");
-    var crypto3 = __require("crypto");
-    var packageJson = require_package();
-    var version2 = packageJson.version;
-    var LINE = /(?:^|^)\s*(?:export\s+)?([\w.-]+)(?:\s*=\s*?|:\s+?)(\s*'(?:\\'|[^'])*'|\s*"(?:\\"|[^"])*"|\s*`(?:\\`|[^`])*`|[^#\r\n]+)?\s*(?:#.*)?(?:$|$)/mg;
-    function parse3(src) {
-      const obj = {};
-      let lines = src.toString();
-      lines = lines.replace(/\r\n?/mg, "\n");
-      let match2;
-      while ((match2 = LINE.exec(lines)) != null) {
-        const key = match2[1];
-        let value = match2[2] || "";
-        value = value.trim();
-        const maybeQuote = value[0];
-        value = value.replace(/^(['"`])([\s\S]*)\1$/mg, "$2");
-        if (maybeQuote === '"') {
-          value = value.replace(/\\n/g, "\n");
-          value = value.replace(/\\r/g, "\r");
-        }
-        obj[key] = value;
-      }
-      return obj;
-    }
-    function _parseVault(options) {
-      options = options || {};
-      const vaultPath = _vaultPath(options);
-      options.path = vaultPath;
-      const result3 = DotenvModule.configDotenv(options);
-      if (!result3.parsed) {
-        const err = new Error(`MISSING_DATA: Cannot parse ${vaultPath} for an unknown reason`);
-        err.code = "MISSING_DATA";
-        throw err;
-      }
-      const keys = _dotenvKey(options).split(",");
-      const length = keys.length;
-      let decrypted;
-      for (let i = 0; i < length; i++) {
-        try {
-          const key = keys[i].trim();
-          const attrs = _instructions(result3, key);
-          decrypted = DotenvModule.decrypt(attrs.ciphertext, attrs.key);
-          break;
-        } catch (error) {
-          if (i + 1 >= length) {
-            throw error;
-          }
-        }
-      }
-      return DotenvModule.parse(decrypted);
-    }
-    function _warn(message) {
-      console.log(`[dotenv@${version2}][WARN] ${message}`);
-    }
-    function _debug(message) {
-      console.log(`[dotenv@${version2}][DEBUG] ${message}`);
-    }
-    function _log(message) {
-      console.log(`[dotenv@${version2}] ${message}`);
-    }
-    function _dotenvKey(options) {
-      if (options && options.DOTENV_KEY && options.DOTENV_KEY.length > 0) {
-        return options.DOTENV_KEY;
-      }
-      if (process.env.DOTENV_KEY && process.env.DOTENV_KEY.length > 0) {
-        return process.env.DOTENV_KEY;
-      }
-      return "";
-    }
-    function _instructions(result3, dotenvKey) {
-      let uri;
-      try {
-        uri = new URL(dotenvKey);
-      } catch (error) {
-        if (error.code === "ERR_INVALID_URL") {
-          const err = new Error("INVALID_DOTENV_KEY: Wrong format. Must be in valid uri format like dotenv://:key_1234@dotenvx.com/vault/.env.vault?environment=development");
-          err.code = "INVALID_DOTENV_KEY";
-          throw err;
-        }
-        throw error;
-      }
-      const key = uri.password;
-      if (!key) {
-        const err = new Error("INVALID_DOTENV_KEY: Missing key part");
-        err.code = "INVALID_DOTENV_KEY";
-        throw err;
-      }
-      const environment = uri.searchParams.get("environment");
-      if (!environment) {
-        const err = new Error("INVALID_DOTENV_KEY: Missing environment part");
-        err.code = "INVALID_DOTENV_KEY";
-        throw err;
-      }
-      const environmentKey = `DOTENV_VAULT_${environment.toUpperCase()}`;
-      const ciphertext = result3.parsed[environmentKey];
-      if (!ciphertext) {
-        const err = new Error(`NOT_FOUND_DOTENV_ENVIRONMENT: Cannot locate environment ${environmentKey} in your .env.vault file.`);
-        err.code = "NOT_FOUND_DOTENV_ENVIRONMENT";
-        throw err;
-      }
-      return { ciphertext, key };
-    }
-    function _vaultPath(options) {
-      let possibleVaultPath = null;
-      if (options && options.path && options.path.length > 0) {
-        if (Array.isArray(options.path)) {
-          for (const filepath of options.path) {
-            if (fs3.existsSync(filepath)) {
-              possibleVaultPath = filepath.endsWith(".vault") ? filepath : `${filepath}.vault`;
-            }
-          }
-        } else {
-          possibleVaultPath = options.path.endsWith(".vault") ? options.path : `${options.path}.vault`;
-        }
-      } else {
-        possibleVaultPath = path2.resolve(process.cwd(), ".env.vault");
-      }
-      if (fs3.existsSync(possibleVaultPath)) {
-        return possibleVaultPath;
-      }
-      return null;
-    }
-    function _resolveHome(envPath) {
-      return envPath[0] === "~" ? path2.join(os2.homedir(), envPath.slice(1)) : envPath;
-    }
-    function _configVault(options) {
-      const debug = Boolean(options && options.debug);
-      const quiet = options && "quiet" in options ? options.quiet : true;
-      if (debug || !quiet) {
-        _log("Loading env from encrypted .env.vault");
-      }
-      const parsed = DotenvModule._parseVault(options);
-      let processEnv = process.env;
-      if (options && options.processEnv != null) {
-        processEnv = options.processEnv;
-      }
-      DotenvModule.populate(processEnv, parsed, options);
-      return { parsed };
-    }
-    function configDotenv(options) {
-      const dotenvPath = path2.resolve(process.cwd(), ".env");
-      let encoding = "utf8";
-      const debug = Boolean(options && options.debug);
-      const quiet = options && "quiet" in options ? options.quiet : true;
-      if (options && options.encoding) {
-        encoding = options.encoding;
-      } else {
-        if (debug) {
-          _debug("No encoding is specified. UTF-8 is used by default");
-        }
-      }
-      let optionPaths = [dotenvPath];
-      if (options && options.path) {
-        if (!Array.isArray(options.path)) {
-          optionPaths = [_resolveHome(options.path)];
-        } else {
-          optionPaths = [];
-          for (const filepath of options.path) {
-            optionPaths.push(_resolveHome(filepath));
-          }
-        }
-      }
-      let lastError;
-      const parsedAll = {};
-      for (const path3 of optionPaths) {
-        try {
-          const parsed = DotenvModule.parse(fs3.readFileSync(path3, { encoding }));
-          DotenvModule.populate(parsedAll, parsed, options);
-        } catch (e) {
-          if (debug) {
-            _debug(`Failed to load ${path3} ${e.message}`);
-          }
-          lastError = e;
-        }
-      }
-      let processEnv = process.env;
-      if (options && options.processEnv != null) {
-        processEnv = options.processEnv;
-      }
-      DotenvModule.populate(processEnv, parsedAll, options);
-      if (debug || !quiet) {
-        const keysCount = Object.keys(parsedAll).length;
-        const shortPaths = [];
-        for (const filePath of optionPaths) {
-          try {
-            const relative = path2.relative(process.cwd(), filePath);
-            shortPaths.push(relative);
-          } catch (e) {
-            if (debug) {
-              _debug(`Failed to load ${filePath} ${e.message}`);
-            }
-            lastError = e;
-          }
-        }
-        _log(`injecting env (${keysCount}) from ${shortPaths.join(",")}`);
-      }
-      if (lastError) {
-        return { parsed: parsedAll, error: lastError };
-      } else {
-        return { parsed: parsedAll };
-      }
-    }
-    function config2(options) {
-      if (_dotenvKey(options).length === 0) {
-        return DotenvModule.configDotenv(options);
-      }
-      const vaultPath = _vaultPath(options);
-      if (!vaultPath) {
-        _warn(`You set DOTENV_KEY but you are missing a .env.vault file at ${vaultPath}. Did you forget to build it?`);
-        return DotenvModule.configDotenv(options);
-      }
-      return DotenvModule._configVault(options);
-    }
-    function decrypt(encrypted, keyStr) {
-      const key = Buffer.from(keyStr.slice(-64), "hex");
-      let ciphertext = Buffer.from(encrypted, "base64");
-      const nonce = ciphertext.subarray(0, 12);
-      const authTag = ciphertext.subarray(-16);
-      ciphertext = ciphertext.subarray(12, -16);
-      try {
-        const aesgcm = crypto3.createDecipheriv("aes-256-gcm", key, nonce);
-        aesgcm.setAuthTag(authTag);
-        return `${aesgcm.update(ciphertext)}${aesgcm.final()}`;
-      } catch (error) {
-        const isRange = error instanceof RangeError;
-        const invalidKeyLength = error.message === "Invalid key length";
-        const decryptionFailed = error.message === "Unsupported state or unable to authenticate data";
-        if (isRange || invalidKeyLength) {
-          const err = new Error("INVALID_DOTENV_KEY: It must be 64 characters long (or more)");
-          err.code = "INVALID_DOTENV_KEY";
-          throw err;
-        } else if (decryptionFailed) {
-          const err = new Error("DECRYPTION_FAILED: Please check your DOTENV_KEY");
-          err.code = "DECRYPTION_FAILED";
-          throw err;
-        } else {
-          throw error;
-        }
-      }
-    }
-    function populate(processEnv, parsed, options = {}) {
-      const debug = Boolean(options && options.debug);
-      const override = Boolean(options && options.override);
-      if (typeof parsed !== "object") {
-        const err = new Error("OBJECT_REQUIRED: Please check the processEnv argument being passed to populate");
-        err.code = "OBJECT_REQUIRED";
-        throw err;
-      }
-      for (const key of Object.keys(parsed)) {
-        if (Object.prototype.hasOwnProperty.call(processEnv, key)) {
-          if (override === true) {
-            processEnv[key] = parsed[key];
-          }
-          if (debug) {
-            if (override === true) {
-              _debug(`"${key}" is already defined and WAS overwritten`);
-            } else {
-              _debug(`"${key}" is already defined and was NOT overwritten`);
-            }
-          }
-        } else {
-          processEnv[key] = parsed[key];
-        }
-      }
-    }
-    var DotenvModule = {
-      configDotenv,
-      _configVault,
-      _parseVault,
-      config: config2,
-      decrypt,
-      parse: parse3,
-      populate
-    };
-    module.exports.configDotenv = DotenvModule.configDotenv;
-    module.exports._configVault = DotenvModule._configVault;
-    module.exports._parseVault = DotenvModule._parseVault;
-    module.exports.config = DotenvModule.config;
-    module.exports.decrypt = DotenvModule.decrypt;
-    module.exports.parse = DotenvModule.parse;
-    module.exports.populate = DotenvModule.populate;
-    module.exports = DotenvModule;
-  }
-});
-
 // packages/database/src/env.ts
-import path from "path";
-var dotenv, envSchema, result, env;
+var envSchema, result, env;
 var init_env = __esm({
   "packages/database/src/env.ts"() {
     "use strict";
     init_zod();
-    dotenv = __toESM(require_main());
-    dotenv.config({ path: path.resolve(__dirname, "../../../apps/api/.env") });
     envSchema = external_exports.object({
       DATABASE_URL: external_exports.string().url("DATABASE_URL must be a valid connection URL")
     });
     result = envSchema.safeParse(process.env);
     if (!result.success) {
-      console.error("\u274C Database configuration error:", result.error.format());
+      console.error(
+        "Database configuration error:",
+        result.error.format()
+      );
       throw new Error("Invalid database environment variables");
     }
     env = result.data;
@@ -15702,26 +15315,26 @@ var handleParsingNestedValues = (form, key, value) => {
 };
 
 // node_modules/.pnpm/hono@4.12.27/node_modules/hono/dist/utils/url.js
-var splitPath = (path2) => {
-  const paths = path2.split("/");
+var splitPath = (path) => {
+  const paths = path.split("/");
   if (paths[0] === "") {
     paths.shift();
   }
   return paths;
 };
 var splitRoutingPath = (routePath) => {
-  const { groups, path: path2 } = extractGroupsFromPath(routePath);
-  const paths = splitPath(path2);
+  const { groups, path } = extractGroupsFromPath(routePath);
+  const paths = splitPath(path);
   return replaceGroupMarks(paths, groups);
 };
-var extractGroupsFromPath = (path2) => {
+var extractGroupsFromPath = (path) => {
   const groups = [];
-  path2 = path2.replace(/\{[^}]+\}/g, (match2, index2) => {
+  path = path.replace(/\{[^}]+\}/g, (match2, index2) => {
     const mark = `@${index2}`;
     groups.push([mark, match2]);
     return mark;
   });
-  return { groups, path: path2 };
+  return { groups, path };
 };
 var replaceGroupMarks = (paths, groups) => {
   for (let i = groups.length - 1; i >= 0; i--) {
@@ -15778,8 +15391,8 @@ var getPath = (request) => {
       const queryIndex = url.indexOf("?", i);
       const hashIndex = url.indexOf("#", i);
       const end = queryIndex === -1 ? hashIndex === -1 ? void 0 : hashIndex : hashIndex === -1 ? queryIndex : Math.min(queryIndex, hashIndex);
-      const path2 = url.slice(start, end);
-      return tryDecodeURI(path2.includes("%25") ? path2.replace(/%25/g, "%2525") : path2);
+      const path = url.slice(start, end);
+      return tryDecodeURI(path.includes("%25") ? path.replace(/%25/g, "%2525") : path);
     } else if (charCode === 63 || charCode === 35) {
       break;
     }
@@ -15796,11 +15409,11 @@ var mergePath = (base, sub, ...rest) => {
   }
   return `${base?.[0] === "/" ? "" : "/"}${base}${sub === "/" ? "" : `${base?.at(-1) === "/" ? "" : "/"}${sub?.[0] === "/" ? sub.slice(1) : sub}`}`;
 };
-var checkOptionalParameter = (path2) => {
-  if (path2.charCodeAt(path2.length - 1) !== 63 || !path2.includes(":")) {
+var checkOptionalParameter = (path) => {
+  if (path.charCodeAt(path.length - 1) !== 63 || !path.includes(":")) {
     return null;
   }
-  const segments = path2.split("/");
+  const segments = path.split("/");
   const results = [];
   let basePath = "";
   segments.forEach((segment) => {
@@ -15941,9 +15554,9 @@ var HonoRequest = class {
    */
   path;
   bodyCache = {};
-  constructor(request, path2 = "/", matchResult = [[]]) {
+  constructor(request, path = "/", matchResult = [[]]) {
     this.raw = request;
-    this.path = path2;
+    this.path = path;
     this.#matchResult = matchResult;
     this.#validatedData = {};
   }
@@ -16695,8 +16308,8 @@ var Hono = class _Hono {
         return this;
       };
     });
-    this.on = (method, path2, ...handlers) => {
-      for (const p of [path2].flat()) {
+    this.on = (method, path, ...handlers) => {
+      for (const p of [path].flat()) {
         this.#path = p;
         for (const m of [method].flat()) {
           handlers.map((handler) => {
@@ -16753,8 +16366,8 @@ var Hono = class _Hono {
    * app.route("/api", app2) // GET /api/user
    * ```
    */
-  route(path2, app3) {
-    const subApp = this.basePath(path2);
+  route(path, app3) {
+    const subApp = this.basePath(path);
     app3.routes.map((r) => {
       let handler;
       if (app3.errorHandler === errorHandler) {
@@ -16780,9 +16393,9 @@ var Hono = class _Hono {
    * const api = new Hono().basePath('/api')
    * ```
    */
-  basePath(path2) {
+  basePath(path) {
     const subApp = this.#clone();
-    subApp._basePath = mergePath(this._basePath, path2);
+    subApp._basePath = mergePath(this._basePath, path);
     return subApp;
   }
   /**
@@ -16856,7 +16469,7 @@ var Hono = class _Hono {
    * })
    * ```
    */
-  mount(path2, applicationHandler, options) {
+  mount(path, applicationHandler, options) {
     let replaceRequest;
     let optionHandler;
     if (options) {
@@ -16883,7 +16496,7 @@ var Hono = class _Hono {
       return [c.env, executionContext];
     };
     replaceRequest ||= (() => {
-      const mergedPath = mergePath(this._basePath, path2);
+      const mergedPath = mergePath(this._basePath, path);
       const pathPrefixLength = mergedPath === "/" ? 0 : mergedPath.length;
       return (request) => {
         const url = new URL(request.url);
@@ -16898,19 +16511,19 @@ var Hono = class _Hono {
       }
       await next();
     };
-    this.#addRoute(METHOD_NAME_ALL, mergePath(path2, "*"), handler);
+    this.#addRoute(METHOD_NAME_ALL, mergePath(path, "*"), handler);
     return this;
   }
-  #addRoute(method, path2, handler, baseRoutePath) {
+  #addRoute(method, path, handler, baseRoutePath) {
     method = method.toUpperCase();
-    path2 = mergePath(this._basePath, path2);
+    path = mergePath(this._basePath, path);
     const r = {
       basePath: baseRoutePath !== void 0 ? mergePath(this._basePath, baseRoutePath) : this._basePath,
-      path: path2,
+      path,
       method,
       handler
     };
-    this.router.add(method, path2, [handler, r]);
+    this.router.add(method, path, [handler, r]);
     this.routes.push(r);
   }
   #handleError(err, c) {
@@ -16923,10 +16536,10 @@ var Hono = class _Hono {
     if (method === "HEAD") {
       return (async () => new Response(null, await this.#dispatch(request, executionCtx, env3, "GET")))();
     }
-    const path2 = this.getPath(request, { env: env3 });
-    const matchResult = this.router.match(method, path2);
+    const path = this.getPath(request, { env: env3 });
+    const matchResult = this.router.match(method, path);
     const c = new Context(request, {
-      path: path2,
+      path,
       matchResult,
       env: env3,
       executionCtx,
@@ -17026,15 +16639,15 @@ var Hono = class _Hono {
 
 // node_modules/.pnpm/hono@4.12.27/node_modules/hono/dist/router/reg-exp-router/matcher.js
 var emptyParam = [];
-function match(method, path2) {
+function match(method, path) {
   const matchers = this.buildAllMatchers();
-  const match2 = ((method2, path22) => {
+  const match2 = ((method2, path2) => {
     const matcher = matchers[method2] || matchers[METHOD_NAME_ALL];
-    const staticMatch = matcher[2][path22];
+    const staticMatch = matcher[2][path2];
     if (staticMatch) {
       return staticMatch;
     }
-    const match3 = path22.match(matcher[0]);
+    const match3 = path2.match(matcher[0]);
     if (!match3) {
       return [[], emptyParam];
     }
@@ -17042,7 +16655,7 @@ function match(method, path2) {
     return [matcher[1][index2], match3];
   });
   this.match = match2;
-  return match2(method, path2);
+  return match2(method, path);
 }
 
 // node_modules/.pnpm/hono@4.12.27/node_modules/hono/dist/router/reg-exp-router/node.js
@@ -17157,12 +16770,12 @@ var Node = class _Node {
 var Trie = class {
   #context = { varIndex: 0 };
   #root = new Node();
-  insert(path2, index2, pathErrorCheckOnly) {
+  insert(path, index2, pathErrorCheckOnly) {
     const paramAssoc = [];
     const groups = [];
     for (let i = 0; ; ) {
       let replaced = false;
-      path2 = path2.replace(/\{[^}]+\}/g, (m) => {
+      path = path.replace(/\{[^}]+\}/g, (m) => {
         const mark = `@\\${i}`;
         groups[i] = [mark, m];
         i++;
@@ -17173,7 +16786,7 @@ var Trie = class {
         break;
       }
     }
-    const tokens = path2.match(/(?::[^\/]+)|(?:\/\*$)|./g) || [];
+    const tokens = path.match(/(?::[^\/]+)|(?:\/\*$)|./g) || [];
     for (let i = groups.length - 1; i >= 0; i--) {
       const [mark] = groups[i];
       for (let j = tokens.length - 1; j >= 0; j--) {
@@ -17212,9 +16825,9 @@ var Trie = class {
 // node_modules/.pnpm/hono@4.12.27/node_modules/hono/dist/router/reg-exp-router/router.js
 var nullMatcher = [/^$/, [], /* @__PURE__ */ Object.create(null)];
 var wildcardRegExpCache = /* @__PURE__ */ Object.create(null);
-function buildWildcardRegExp(path2) {
-  return wildcardRegExpCache[path2] ??= new RegExp(
-    path2 === "*" ? "" : `^${path2.replace(
+function buildWildcardRegExp(path) {
+  return wildcardRegExpCache[path] ??= new RegExp(
+    path === "*" ? "" : `^${path.replace(
       /\/\*$|([.\\+*[^\]$()])/g,
       (_, metaChar) => metaChar ? `\\${metaChar}` : "(?:|/.*)"
     )}$`
@@ -17236,17 +16849,17 @@ function buildMatcherFromPreprocessedRoutes(routes) {
   );
   const staticMap = /* @__PURE__ */ Object.create(null);
   for (let i = 0, j = -1, len = routesWithStaticPathFlag.length; i < len; i++) {
-    const [pathErrorCheckOnly, path2, handlers] = routesWithStaticPathFlag[i];
+    const [pathErrorCheckOnly, path, handlers] = routesWithStaticPathFlag[i];
     if (pathErrorCheckOnly) {
-      staticMap[path2] = [handlers.map(([h]) => [h, /* @__PURE__ */ Object.create(null)]), emptyParam];
+      staticMap[path] = [handlers.map(([h]) => [h, /* @__PURE__ */ Object.create(null)]), emptyParam];
     } else {
       j++;
     }
     let paramAssoc;
     try {
-      paramAssoc = trie.insert(path2, j, pathErrorCheckOnly);
+      paramAssoc = trie.insert(path, j, pathErrorCheckOnly);
     } catch (e) {
-      throw e === PATH_ERROR ? new UnsupportedPathError(path2) : e;
+      throw e === PATH_ERROR ? new UnsupportedPathError(path) : e;
     }
     if (pathErrorCheckOnly) {
       continue;
@@ -17280,12 +16893,12 @@ function buildMatcherFromPreprocessedRoutes(routes) {
   }
   return [regexp, handlerMap, staticMap];
 }
-function findMiddleware(middleware, path2) {
+function findMiddleware(middleware, path) {
   if (!middleware) {
     return void 0;
   }
   for (const k of Object.keys(middleware).sort((a, b2) => b2.length - a.length)) {
-    if (buildWildcardRegExp(k).test(path2)) {
+    if (buildWildcardRegExp(k).test(path)) {
       return [...middleware[k]];
     }
   }
@@ -17299,7 +16912,7 @@ var RegExpRouter = class {
     this.#middleware = { [METHOD_NAME_ALL]: /* @__PURE__ */ Object.create(null) };
     this.#routes = { [METHOD_NAME_ALL]: /* @__PURE__ */ Object.create(null) };
   }
-  add(method, path2, handler) {
+  add(method, path, handler) {
     const middleware = this.#middleware;
     const routes = this.#routes;
     if (!middleware || !routes) {
@@ -17314,18 +16927,18 @@ var RegExpRouter = class {
         });
       });
     }
-    if (path2 === "/*") {
-      path2 = "*";
+    if (path === "/*") {
+      path = "*";
     }
-    const paramCount = (path2.match(/\/:/g) || []).length;
-    if (/\*$/.test(path2)) {
-      const re = buildWildcardRegExp(path2);
+    const paramCount = (path.match(/\/:/g) || []).length;
+    if (/\*$/.test(path)) {
+      const re = buildWildcardRegExp(path);
       if (method === METHOD_NAME_ALL) {
         Object.keys(middleware).forEach((m) => {
-          middleware[m][path2] ||= findMiddleware(middleware[m], path2) || findMiddleware(middleware[METHOD_NAME_ALL], path2) || [];
+          middleware[m][path] ||= findMiddleware(middleware[m], path) || findMiddleware(middleware[METHOD_NAME_ALL], path) || [];
         });
       } else {
-        middleware[method][path2] ||= findMiddleware(middleware[method], path2) || findMiddleware(middleware[METHOD_NAME_ALL], path2) || [];
+        middleware[method][path] ||= findMiddleware(middleware[method], path) || findMiddleware(middleware[METHOD_NAME_ALL], path) || [];
       }
       Object.keys(middleware).forEach((m) => {
         if (method === METHOD_NAME_ALL || method === m) {
@@ -17343,15 +16956,15 @@ var RegExpRouter = class {
       });
       return;
     }
-    const paths = checkOptionalParameter(path2) || [path2];
+    const paths = checkOptionalParameter(path) || [path];
     for (let i = 0, len = paths.length; i < len; i++) {
-      const path22 = paths[i];
+      const path2 = paths[i];
       Object.keys(routes).forEach((m) => {
         if (method === METHOD_NAME_ALL || method === m) {
-          routes[m][path22] ||= [
-            ...findMiddleware(middleware[m], path22) || findMiddleware(middleware[METHOD_NAME_ALL], path22) || []
+          routes[m][path2] ||= [
+            ...findMiddleware(middleware[m], path2) || findMiddleware(middleware[METHOD_NAME_ALL], path2) || []
           ];
-          routes[m][path22].push([handler, paramCount - len + i + 1]);
+          routes[m][path2].push([handler, paramCount - len + i + 1]);
         }
       });
     }
@@ -17370,13 +16983,13 @@ var RegExpRouter = class {
     const routes = [];
     let hasOwnRoute = method === METHOD_NAME_ALL;
     [this.#middleware, this.#routes].forEach((r) => {
-      const ownRoute = r[method] ? Object.keys(r[method]).map((path2) => [path2, r[method][path2]]) : [];
+      const ownRoute = r[method] ? Object.keys(r[method]).map((path) => [path, r[method][path]]) : [];
       if (ownRoute.length !== 0) {
         hasOwnRoute ||= true;
         routes.push(...ownRoute);
       } else if (method !== METHOD_NAME_ALL) {
         routes.push(
-          ...Object.keys(r[METHOD_NAME_ALL]).map((path2) => [path2, r[METHOD_NAME_ALL][path2]])
+          ...Object.keys(r[METHOD_NAME_ALL]).map((path) => [path, r[METHOD_NAME_ALL][path]])
         );
       }
     });
@@ -17396,13 +17009,13 @@ var SmartRouter = class {
   constructor(init) {
     this.#routers = init.routers;
   }
-  add(method, path2, handler) {
+  add(method, path, handler) {
     if (!this.#routes) {
       throw new Error(MESSAGE_MATCHER_IS_ALREADY_BUILT);
     }
-    this.#routes.push([method, path2, handler]);
+    this.#routes.push([method, path, handler]);
   }
-  match(method, path2) {
+  match(method, path) {
     if (!this.#routes) {
       throw new Error("Fatal error");
     }
@@ -17417,7 +17030,7 @@ var SmartRouter = class {
         for (let i2 = 0, len2 = routes.length; i2 < len2; i2++) {
           router.add(...routes[i2]);
         }
-        res = router.match(method, path2);
+        res = router.match(method, path);
       } catch (e) {
         if (e instanceof UnsupportedPathError) {
           continue;
@@ -17467,10 +17080,10 @@ var Node2 = class _Node2 {
     }
     this.#patterns = [];
   }
-  insert(method, path2, handler) {
+  insert(method, path, handler) {
     this.#order = ++this.#order;
     let curNode = this;
-    const parts = splitRoutingPath(path2);
+    const parts = splitRoutingPath(path);
     const possibleKeys = [];
     for (let i = 0, len = parts.length; i < len; i++) {
       const p = parts[i];
@@ -17519,12 +17132,12 @@ var Node2 = class _Node2 {
       }
     }
   }
-  search(method, path2) {
+  search(method, path) {
     const handlerSets = [];
     this.#params = emptyParams;
     const curNode = this;
     let curNodes = [curNode];
-    const parts = splitPath(path2);
+    const parts = splitPath(path);
     const curNodesQueue = [];
     const len = parts.length;
     let partOffsets = null;
@@ -17566,13 +17179,13 @@ var Node2 = class _Node2 {
           if (matcher instanceof RegExp) {
             if (partOffsets === null) {
               partOffsets = new Array(len);
-              let offset = path2[0] === "/" ? 1 : 0;
+              let offset = path[0] === "/" ? 1 : 0;
               for (let p = 0; p < len; p++) {
                 partOffsets[p] = offset;
                 offset += parts[p].length + 1;
               }
             }
-            const restPathString = path2.substring(partOffsets[i]);
+            const restPathString = path.substring(partOffsets[i]);
             const m = matcher.exec(restPathString);
             if (m) {
               params[name2] = m[0];
@@ -17625,18 +17238,18 @@ var TrieRouter = class {
   constructor() {
     this.#node = new Node2();
   }
-  add(method, path2, handler) {
-    const results = checkOptionalParameter(path2);
+  add(method, path, handler) {
+    const results = checkOptionalParameter(path);
     if (results) {
       for (let i = 0, len = results.length; i < len; i++) {
         this.#node.insert(method, results[i], handler);
       }
       return;
     }
-    this.#node.insert(method, path2, handler);
+    this.#node.insert(method, path, handler);
   }
-  match(method, path2) {
-    return this.#node.search(method, path2);
+  match(method, path) {
+    return this.#node.search(method, path);
   }
 };
 

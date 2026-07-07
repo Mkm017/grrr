@@ -14,4 +14,4 @@ await esbuild.build({
     logLevel: 'info',
 });
 
-console.log('API bundled to api/index.js');
+console.log('API bundled to api/index.mjs');
